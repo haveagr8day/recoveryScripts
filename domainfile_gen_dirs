@@ -1,0 +1,81 @@
+#!/usr/bin/python
+
+from subprocess import Popen, PIPE
+import sys
+import re
+
+if len(sys.argv) != 3:
+	print 'domainfile_gen <file-path> <output-domainfile>'
+	sys.exit(-1)
+
+filePath = sys.argv[1]
+outputDomainFileName = sys.argv[2]
+
+p = Popen(['grep', '-iE', filePath, 'nodelist.txt'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+stdout_data, stderr_data = p.communicate()
+
+print stdout_data
+
+q = Popen(['awk', '-F' , ':', '{print $1}'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+stdout_data2, stderr_data2 = q.communicate(stdout_data)
+
+inode_set = set(stdout_data2.splitlines())
+
+cluster_set = set()
+
+print '# of inodes: %d' % (len(inode_set))
+inodes_processed = 0
+dirs_found = 0
+dirs_with_clusters = 0
+
+inodes_regex = re.compile(r'^[0-9 ]+$', re.MULTILINE)
+for inode in inode_set:
+	#p = Popen(['istat', '-f', 'ntfs', '-i', 'raw', '/mnt/dis_ext/Lisa/recovered/ddrescue.img', inode], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+	#stdout_data, stderr_data = p.communicate()
+	istat_file = open('istats/%s.txt' % inode,'r')
+	istat_output = istat_file.read()
+	
+	if 'Directory' in istat_output:
+		#q = Popen(['grep', '-Eo', '^[0-9 ]*$'], stdin=PIPE, stdout=PIPE, stderr=PIPE)
+		#stdout_data2, stderr_data2 = q.communicate(stdout_data)
+		inodes_result_list = inodes_regex.findall(istat_output)
+		
+		for result in inodes_result_list:
+			cluster_set.update(result.split())
+		dirs_found += 1
+		if (dirs_found % 100 == 0):
+			print '%d dirs found' % (dirs_found)
+		if len(inodes_result_list) != 0:
+			dirs_with_clusters += 1
+			if (dirs_with_clusters % 25 == 0):
+				print '%d dirs with clusters' % (dirs_with_clusters)
+	inodes_processed += 1
+	if ( inodes_processed % 1000 == 0 ):
+		print '%d inodes processed.' % (inodes_processed)
+
+print '# of clusters: %d' % (len(cluster_set))
+print 'processing clusters - 1'
+cluster_list = list(cluster_set)
+
+print 'processing clusters - 2'
+cluster_list = [int(i) for i in cluster_list]
+
+print 'processing clusters - 3'
+cluster_list = sorted(cluster_list)
+
+print 'processing clusters - 4'
+cluster_list = [i * 4096 for i in cluster_list]
+
+print 'processing clusters - 5'
+cluster_list = [hex(i) for i in cluster_list]
+
+print 'outputing domain file'
+clusters_written = 0
+with open(outputDomainFileName, "w") as output:
+	output.write('0x00000000    +\n')
+	for cluster in cluster_list:
+		row = cluster + '  0x1000  +\n'
+		output.write(row)
+		clusters_written += 1
+		if ( clusters_written % 1000 == 0 ):
+			print '%d clusters written.' % (clusters_written)

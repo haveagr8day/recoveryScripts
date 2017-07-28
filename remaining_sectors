@@ -1,0 +1,1 @@
+watch -n 15 'val=$(ddrescuelog -L -m ./filerecov_domain.log -t /mnt/dis_ext/Lisa/ddrescue.log | grep non-scraped | awk "{print \$2}") && expr $val / 512'

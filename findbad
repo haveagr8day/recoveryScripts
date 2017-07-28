@@ -1,0 +1,2 @@
+ddru_ntfsfindbad /mnt/dis_ext/Lisa/recovered/ddrescue.img /mnt/dis_ext/Lisa/ddrescue.log
+cat ntfsfindbad.log

@@ -1,0 +1,78 @@
+#!/bin/bash
+#while true; do
+
+while true; do
+	# Start ddrescue in background	
+	sudo ddrescue --mapfile-interval=1m,5m -v -L -m ~/Lisa_filerecover/filerecov_domain.log /dev/sdb2 /mnt/dis_ext/Lisa/recovered/ddrescue.img /mnt/dis_ext/Lisa/ddrescue.log &
+
+	# Make sure ddrescue has time to start
+	sleep 5
+
+	# Periodically backup log file while ddrescue is running
+	while pgrep ddrescue -x > /dev/null; do
+		cp /mnt/dis_ext/Lisa/ddrescue.log  /mnt/dis_ext/Lisa/ddrescue_log_backups/`date +"%m%d%y_%H%M%S.log"`
+		cp /mnt/dis_ext/Lisa/ddrescue.log  /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log
+		sleep 120
+	done
+
+	# exit with success to allow for chaining with shutdown command
+	#exit 0
+
+	# Check if drive is alive
+	if tail -n 30 /var/log/kern.log | grep DID_BAD_TARGET > /dev/null; then
+		echo 'Drive offline, attempting to resurrect.'
+		echo 'Drive offline, attempting to resurrect.' >> ~/ddautorestart.log
+		sudo bash -c 'echo "- - -" > /sys/class/scsi_host/host0/scan'
+		echo 'Fixing log file'
+		echo 'Fixing log file' >> ~/ddautorestart.log
+		ddrescuelog -z /mnt/dis_ext/Lisa/ddrescue.log /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log > /mnt/dis_ext/Lisa/ddrescue.log.new
+		mv /mnt/dis_ext/Lisa/ddrescue.log /mnt/dis_ext/Lisa/ddrescue_bad_logs/`date +"%m%d%y_%H%M%S.log"`
+		mv /mnt/dis_ext/Lisa/ddrescue.log.new /mnt/dis_ext/Lisa/ddrescue.log
+		echo 'Waiting 90 seconds'
+		echo 'Waiting 90 seconds' >> ~/ddautorestart.log
+		sleep 90
+		echo 'Checking if drive is revived'
+		echo 'Checking if drive is revived' >> ~/ddautorestart.log
+		if tail -n 30 /var/log/kern.log | grep '\[sdb\] Attached SCSI disk'; then
+			echo 'Drive resurrected, restarting ddrescue'
+			echo 'Drive resurrected, restarting ddrescue' >> ~/ddautorestart.log
+		else
+			echo 'Failed to bring drive back online, exiting!'
+			echo 'Failed to bring drive back online, exiting!' >> ~/ddautorestart.log
+			break
+		fi
+	else
+		echo 'ddrescue completed!'
+		echo 'ddrescue completed!' >> ~/ddautorestart.log
+		break
+	fi
+done
+exit 0
+#	if sudo fdisk /dev/sda -l; then
+#		echo 'Recovery completed, exiting!'
+#		echo 'Recovery completed, exiting!' >> ~/ddautorestart.log
+#		break
+#	else
+#		echo 'Drive offline, attempting to resurrect.'
+#		echo 'Drive offline, attempting to resurrect.' >> ~/ddautorestart.log
+#		sudo bash -c 'echo "- - -" > /sys/class/scsi_host/host0/scan'
+#		echo 'Fixing log file'
+#		echo 'Fixing log file' >> ~/ddautorestart.log
+#		ddrescuelog -z /mnt/dis_ext/Lisa/ddrescue.log /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log > /mnt/dis_ext/Lisa/ddrescue.log.new
+#		mv /mnt/dis_ext/Lisa/ddrescue.log /mnt/dis_ext/Lisa/ddrescue_bad_logs/`date +"%m%d%y_%H%M%S.log"`
+#		mv /mnt/dis_ext/Lisa/ddrescue.log.new /mnt/dis_ext/Lisa/ddrescue.log
+#		echo 'Waiting 90 seconds'
+#		echo 'Waiting 90 seconds' >> ~/ddautorestart.log
+#		sleep 90
+#		echo 'Checking if drive is revived'
+#		echo 'Checking if drive is revived' >> ~/ddautorestart.log
+#		if sudo fdisk /dev/sda -l; then
+#			echo 'Drive resurrected, restarting ddrescue'
+#			echo 'Drive resurrected, restarting ddrescue' >> ~/ddautorestart.log
+#		else
+#			echo 'Failed to bring drive back online, exiting!'
+#			echo 'Failed to bring drive back online, exiting!' >> ~/ddautorestart.log
+#			break
+#		fi
+#	fi
+#done

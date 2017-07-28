@@ -1,0 +1,18 @@
+percent=-1
+for node in `seq 0 315391`; do	
+	echo "$node: " $(ffind -u -f ntfs -i raw /mnt/dis_ext/Lisa/recovered/ddrescue.img $node) >> ./nodelist.txt
+	if ! (($node % 3153)); then
+		let percent+=1
+		echo $percent
+	fi
+done
+
+percent=-1
+mkdir istats
+for node in `seq 0 315391`; do
+	istat -f ntfs -i raw /mnt/dis_ext/Lisa/recovered/ddrescue.img $node > ./istats/$node.txt
+	if ! (($node % 3153)); then
+		let percent+=1
+		echo $percent
+	fi
+done

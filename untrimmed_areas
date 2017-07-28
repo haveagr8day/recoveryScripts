@@ -1,0 +1,1 @@
+watch -n 60 'ddrescuelog -L -m ./filerecov_domain.log -t /mnt/dis_ext/Lisa/ddrescue.log | grep non-trimmed | awk "{print \$5}"'

@@ -1,0 +1,2 @@
+#!/bin/bash
+ddrescuelog -L -m ./filerecov_domain.log -t /mnt/dis_ext/Lisa/ddrescue.log

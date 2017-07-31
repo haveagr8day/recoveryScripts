@@ -28,9 +28,9 @@ while true; do
 		ddrescuelog -z /mnt/dis_ext/Lisa/ddrescue.log /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log > /mnt/dis_ext/Lisa/ddrescue.log.new
 		mv /mnt/dis_ext/Lisa/ddrescue.log /mnt/dis_ext/Lisa/ddrescue_bad_logs/`date +"%m%d%y_%H%M%S.log"`
 		mv /mnt/dis_ext/Lisa/ddrescue.log.new /mnt/dis_ext/Lisa/ddrescue.log
-		echo 'Waiting 90 seconds'
-		echo 'Waiting 90 seconds' >> ~/ddautorestart.log
-		sleep 90
+		echo 'Waiting 120 seconds'
+		echo 'Waiting 120 seconds' >> ~/ddautorestart.log
+		sleep 120
 		echo 'Checking if drive is revived'
 		echo 'Checking if drive is revived' >> ~/ddautorestart.log
 		if tail -n 30 /var/log/kern.log | grep '\[sdb\] Attached SCSI disk'; then

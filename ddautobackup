@@ -19,7 +19,7 @@ while true; do
 	#exit 0
 
 	# Check if drive is alive
-	if tail -n 30 /var/log/kern.log | grep DID_BAD_TARGET > /dev/null || tail -n 30 /var/log/kern.log | grep 'rejecting I/O' > /dev/null; then
+	if tail -n 30 /var/log/kern.log | grep DID_BAD_TARGET > /dev/null || tail -n 30 /var/log/kern.log | grep 'rejecting I/O' > /dev/null || tail -n 30 /var/log/kern.log | grep '[sdb] Stopping disk' > /dev/null; then
 		echo `date +"%m-%d-%y %H:%M:%S"`' Drive offline, attempting to resurrect.'
 		echo `date +"%m-%d-%y %H:%M:%S"`' Drive offline, attempting to resurrect.' >> ~/ddautorestart.log
 		sudo bash -c 'echo "- - -" > /sys/class/scsi_host/host0/scan'

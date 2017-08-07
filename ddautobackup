@@ -9,7 +9,7 @@ while true; do
 
 	# Periodically backup log file while ddrescue is running
 	while pgrep ddrescue -x > /dev/null; do
-		mv /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log /mnt/dis_ext/Lisa/ddrescue_log_backup/previous.log
+		mv /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log /mnt/dis_ext/Lisa/ddrescue_log_backups/previous.log
 		cp /mnt/dis_ext/Lisa/ddrescue.log  /mnt/dis_ext/Lisa/ddrescue_log_backups/`date +"%m%d%y_%H%M%S.log"`
 		cp /mnt/dis_ext/Lisa/ddrescue.log  /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log
 		sleep 120

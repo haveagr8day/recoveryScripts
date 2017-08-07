@@ -9,6 +9,7 @@ while true; do
 
 	# Periodically backup log file while ddrescue is running
 	while pgrep ddrescue -x > /dev/null; do
+		mv /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log /mnt/dis_ext/Lisa/ddrescue_log_backup/previous.log
 		cp /mnt/dis_ext/Lisa/ddrescue.log  /mnt/dis_ext/Lisa/ddrescue_log_backups/`date +"%m%d%y_%H%M%S.log"`
 		cp /mnt/dis_ext/Lisa/ddrescue.log  /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log
 		sleep 120
@@ -21,8 +22,16 @@ while true; do
 		sudo bash -c 'echo "- - -" > /sys/class/scsi_host/host0/scan'
 		echo `date +"%m-%d-%y %H:%M:%S"`' Fixing log file'
 		echo `date +"%m-%d-%y %H:%M:%S"`' Fixing log file' >> ~/ddautorestart.log
-		ddrescuelog -z /mnt/dis_ext/Lisa/ddrescue.log /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log > /mnt/dis_ext/Lisa/ddrescue.log.new
+		
+		# Restore back to the second-to-last backup of the log file, but keep any completed blocks that occurred since
+		# Note: The second-to-last backup is used because although the latest usually works fine, sometimes ddrescue takes a short period
+		# of time to shutdown, and may result in the most recent backup containing invalid information (all untried sectors marked as bad)
+		ddrescuelog -z /mnt/dis_ext/Lisa/ddrescue.log /mnt/dis_ext/Lisa/ddrescue_log_backups/previous.log > /mnt/dis_ext/Lisa/ddrescue.log.new
+		
+		# Archive the failed run's log file
 		mv /mnt/dis_ext/Lisa/ddrescue.log /mnt/dis_ext/Lisa/ddrescue_bad_logs/`date +"%m%d%y_%H%M%S.log"`
+		
+		# Put the fixed log file into the proper location
 		mv /mnt/dis_ext/Lisa/ddrescue.log.new /mnt/dis_ext/Lisa/ddrescue.log
 		echo `date +"%m-%d-%y %H:%M:%S"`' Waiting 120 seconds'
 		echo `date +"%m-%d-%y %H:%M:%S"`' Waiting 120 seconds' >> ~/ddautorestart.log

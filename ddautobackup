@@ -1,5 +1,4 @@
 #!/bin/bash
-#while true; do
 
 while true; do
 	# Start ddrescue in background	
@@ -14,9 +13,6 @@ while true; do
 		cp /mnt/dis_ext/Lisa/ddrescue.log  /mnt/dis_ext/Lisa/ddrescue_log_backups/latest.log
 		sleep 120
 	done
-
-	# exit with success to allow for chaining with shutdown command
-	#exit 0
 
 	# Check if drive is alive
 	if tail -n 30 /var/log/kern.log | grep DID_BAD_TARGET > /dev/null || tail -n 30 /var/log/kern.log | grep 'rejecting I/O' > /dev/null || tail -n 30 /var/log/kern.log | grep '[sdb] Stopping disk' > /dev/null; then
@@ -47,4 +43,5 @@ while true; do
 		break
 	fi
 done
-exit 0
+
+exit 0 # Always return success to allow chaining with shutdown command

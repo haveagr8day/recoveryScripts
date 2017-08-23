@@ -1,8 +1,3 @@
-nodelist () {
-	local node=$1
-	echo "$node: " $(ffind -u -f ntfs -i raw /mnt/dis_ext/Lisa/recovered/ddrescue.img $node) >> ./nodelist.txt
-}
-	
 istats () {
 	local node=$1
 	istat -f ntfs -i raw /mnt/dis_ext/Lisa/recovered/ddrescue.img $node > ./istats/$node.txt

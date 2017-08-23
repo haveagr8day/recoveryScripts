@@ -3,11 +3,7 @@ nodelist () {
 	echo "$node: " $(ffind -u -f ntfs -i raw /mnt/dis_ext/Lisa/recovered/ddrescue.img $node) >> ./nodelist.txt
 }
 	
-istats () {
-	local node=$1
-	istat -f ntfs -i raw /mnt/dis_ext/Lisa/recovered/ddrescue.img $node > ./istats/$node.txt
-}	
-
 for node in `seq 0 315391`; do nodelist "$node" & done
+wait
 sort -n ./nodelist.txt > ./sortednodelist.txt
 mv ./sortednodelist.txt ./nodelist.txt
